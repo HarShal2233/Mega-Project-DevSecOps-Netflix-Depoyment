@@ -27,6 +27,6 @@ jobs:
             cd ~/Mega-Project-DevSecOps-Netflix-Depoyment
             git pull origin main
             docker compose pull
-            docker compose up -d
+            docker compose down && docker compose up -d
             docker image prune -f
 
