@@ -23,6 +23,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
 
           script: |
+            git clone https://github.com/HarShal2233/Mega-Project-DevSecOps-Netflix-Depoyment.git
             cd ~/Mega-Project-DevSecOps-Netflix-Depoyment
             git pull origin main
             docker-compose pull
