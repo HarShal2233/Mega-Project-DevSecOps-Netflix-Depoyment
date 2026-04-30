@@ -1,0 +1,31 @@
+name: cd
+
+on: 
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main] 
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+            cd ~/Mega-Project-DevSecOps-Netflix-Depoyment
+            git pull origin main
+            docker-compose pull
+            docker-compose up -d
+            docker image prune -f
+
