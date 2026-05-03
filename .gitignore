@@ -1,1 +1,30 @@
 .env
+# Terraform state files (VERY IMPORTANT)
+*.tfstate
+*.tfstate.backup
+
+# Terraform directory
+.terraform/
+.terraform.lock.hcl
+
+# Crash logs
+crash.log
+
+# Sensitive variable files
+*.tfvars
+*.tfvars.json
+
+# Backend config files (if you store secrets)
+backend.hcl
+
+# SSH Keys (VERY IMPORTANT)
+*.pem
+*.key
+*.pub
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
