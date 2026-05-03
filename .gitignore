@@ -31,3 +31,8 @@ Thumbs.db
 
 netflix-terra-key
 netflix-terra-key.pub
+
+# SSH Keys
+*.pem
+*.key
+*.pub
