@@ -1,0 +1,104 @@
+@Library('shared-libraries') _
+
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "harshal2op/netflix"
+    }
+
+    parameters {
+        string(name: 'DOCKER_TAG', defaultValue: '', description: 'Docker image tag from CI')
+    }
+
+    stages {
+
+        stage("Workspace cleanup") {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage("Validate Input") {
+            steps {
+                script {
+                    if (!params.DOCKER_TAG?.trim()) {
+                        error("DOCKER_TAG is required for deployment")
+                    }
+                }
+            }
+        }
+
+        stage("Git: Code Checkout") {
+            steps {
+                code_checkout(
+                    "https://github.com/HarShal2233/Mega-Project-DevSecOps-Netflix-Depoyment.git",
+                    "main"
+                )
+            }
+        }
+
+        stage("Update Deployment Manifest") {
+            steps {
+                script {
+                    dir("Kubernetes") {
+                        sh """
+                        echo "Updating image to ${IMAGE_NAME}:${params.DOCKER_TAG}"
+
+                        sed -i "s|${IMAGE_NAME}:.*|${IMAGE_NAME}:${params.DOCKER_TAG}|g" deployment.yml
+
+                        cat deployment.yml
+                        """
+                    }
+                }
+            }
+        }
+
+        stage("Commit & Push Changes") {
+            steps {
+                withCredentials([gitUsernamePassword(credentialsId: 'GitHub-Cred', gitToolName: 'Default')]) {
+                    sh """
+                    git config user.email "jenkins@example.com"
+                    git config user.name "jenkins"
+
+                    git add .
+
+                    git commit -m "🚀 Updated Netflix image to ${params.DOCKER_TAG}" || echo "No changes"
+
+                    git push origin main
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+
+        success {
+            emailext attachLog: true,
+            from: 'harshalhajaresangli@gmail.com',
+            subject: "Netflix Deployment SUCCESS - ${currentBuild.result}",
+            body: """
+            <h3>Project: ${env.JOB_NAME}</h3>
+            <p>Build: ${env.BUILD_NUMBER}</p>
+            <p>URL: ${env.BUILD_URL}</p>
+            """,
+            to: 'harshalhajaresangli@gmail.com',
+            mimeType: 'text/html'
+        }
+
+        failure {
+            script {
+                emailext attachLog: true,
+                from: 'harshalhajaresangli@gmail.com',
+                subject: "Netflix Deployment FAILED - ${currentBuild.result}",
+                body: """
+                <h3>Project: ${env.JOB_NAME}</h3>
+                <p>Build: ${env.BUILD_NUMBER}</p>
+                """,
+                to: 'harshalhajaresangli@gmail.com',
+                mimeType: 'text/html'
+            }
+        }
+    }
+}

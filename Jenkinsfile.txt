@@ -1,0 +1,101 @@
+@Library('shared-libraries') _
+
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK'
+        nodejs 'NodeJs'
+    }
+
+    environment {
+        SONAR_HOME = tool 'sonar-scanner'
+    }
+    
+     parameters {
+        string(name: 'DOCKER_TAG', defaultValue: '', description: 'Setting docker image for latest push')
+    }
+
+    stages {
+        
+        stage("Validate Parameters") {
+            steps {
+                script {
+                    if (params.DOCKER_TAG == '') {
+                        error("DOCKER_TAG must be provided.")
+                    }
+                }
+            }
+        }
+
+        stage('Clean Workspace') {
+            steps { cleanWs() }
+        }
+
+        stage('Checkout Code') {
+            steps {
+                code_checkout(
+                    'https://github.com/HarShal2233/Mega-Project-DevSecOps-Netflix-Depoyment.git',
+                    'main'
+                )
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                sonarqube_analysis('SonarQube-Netflix-DecSecOps', 'Netflix', 'Netflix-test')
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                sonarqube_code_quality()
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('OWASP Dependency Check') {
+            steps {
+                owasp_dependency()
+            }
+        }
+
+        stage('Trivy FS Scan') {
+            steps {
+                trivy_scan()
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                docker_build('netflix',"${params.DOCKER_TAG}", 'harshal2op')
+            }
+        }
+
+        stage('Trivy Image Scan') {
+            steps {
+                sh "trivy image harshal2op/netflix:${params.DOCKER_TAG}"
+            }
+        }
+        
+        stage('Push Docker Image') {
+            steps {
+                docker_push('netflix', "${params.DOCKER_TAG}", 'harshal2op')
+            }
+        }
+    }
+        
+    post {
+        success {
+            archiveArtifacts artifacts: '*.xml', followSymlinks: false
+            build job: "netflic-CD", parameters: [
+                string(name: 'DOCKER_TAG', value: "${params.DOCKER_TAG}")
+            ]
+        }
+    }
+}
