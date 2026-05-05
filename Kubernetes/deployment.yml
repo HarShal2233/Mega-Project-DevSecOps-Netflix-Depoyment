@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: netflix-app
-          image: harshal2op/netflix:v2.1
+          image: harshal2op/netflix:v2
           ports:
             - containerPort: 80
 
