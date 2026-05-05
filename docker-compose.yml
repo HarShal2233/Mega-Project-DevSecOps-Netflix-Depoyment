@@ -4,7 +4,7 @@ services:
   netflix-frontend:
     build:
       context: .
-      dockerfile: Dockerfile
+    image: harshal2op/netflix:latest
     env_file:
       .env
     container_name: netflix-frontend
