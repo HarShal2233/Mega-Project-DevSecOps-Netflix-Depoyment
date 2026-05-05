@@ -5,28 +5,32 @@ metadata:
   namespace: netflix-nm
   labels:
     app: netflix-app
+
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: netflix-app
+
   template:
     metadata:
       labels:
         app: netflix-app
+
     spec:
       containers:
-      - name: netflix-app
-        image: harshal2op/netflix:latest
-        ports:
-        - containerPort: 80
+        - name: netflix-app
+          image: harshal2op/netflix:latest
+          ports:
+            - containerPort: 80
+
           env:
             - name: TMDB_V3_API_KEY
               valueFrom:
-              secretKeyRef:
-                name: netflix-secret
-                key: TMDB_V3_API_KEY
-            
+                secretKeyRef:
+                  name: netflix-secret
+                  key: TMDB_V3_API_KEY
+
           resources:
             requests:
               cpu: "100m"
