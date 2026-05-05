@@ -1,5 +1,5 @@
 def call(){
-  timeout(time: 1, unit: "MINUTES"){
-      waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
+  timeout(time: 20, unit: "MINUTES"){
+      waitForQualityGate abortPipeline: true, credentialsId: 'Sonar-token'
   }
 }
