@@ -8,15 +8,18 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
 spec:
+  ingressClassName: nginx   # ✅ ADD THIS (CRITICAL FIX)
+
   rules:
   - host: netflix.com
     http:
       paths:
       - pathType: Prefix
-        path: "/"
+        path: /
         backend:
-          service: 
-            name: netflix-app 
-            port: 
+          service:
+            name: netflix-app
+            port:
               number: 80
