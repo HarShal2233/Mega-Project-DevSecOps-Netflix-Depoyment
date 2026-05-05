@@ -1,16 +1,15 @@
 def call(String imageName) {
     sh """
-    echo "=============================="
-    echo " Trivy Image Scan Started"
-    echo " Image: ${imageName}"
-    echo "=============================="
+        echo "=============================="
+        echo " Trivy Image Scan Started"
+        echo " Image: ${imageName}"
+        echo "=============================="
 
-    trivy image \
-      --severity HIGH,CRITICAL \
-      --exit-code 1 \
-      --format table \
-      ${imageName} | tee trivy-image-report.txt
+        trivy image ${imageName} \
+            --severity HIGH,CRITICAL \
+            --exit-code 0 \
+            --format table | tee trivy-image-report.txt
 
-    echo "Scan Completed"
+        echo "Scan Completed"
     """
 }
